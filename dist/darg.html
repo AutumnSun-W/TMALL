@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-1.11.0.js"></script>
+</head>
+<style>
+    .outer {
+        position: relative;
+        /*margin: 20px auto;*/
+        width: 250px;
+        height: 30px;
+        line-height: 28px;
+        border: 1px solid #ccc;
+        background: #ccc9c9;
+        font-size: 12px;
+        margin:auto;
+        float:left;
+    }
+
+    .outer span, .filter-box, .inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .outer span {
+        display: block;
+        padding: 0 0 0 36px;
+        width: 100%;
+        height: 100%;
+        color: #fff;
+        text-align: center;
+    }
+
+    .filter-box {
+        width: 0;
+        height: 100%;
+        background: green;
+        z-index: 9;
+    }
+
+    .outer.act span {
+        padding: 0 36px 0 0;
+    }
+
+    .inner {
+        width: 36px;
+        height: 28px;
+        text-align: center;
+        background: #fff;
+        cursor: pointer;
+        z-index: 10;
+        font-weight: bold;
+        color: #929292;
+    }
+
+    .outer.act .inner {
+        color: green;
+    }
+
+    .outer.act span {
+        z-index: 99;
+    }
+</style>
+<body>
+
+<div style="position: relative">
+    <div class="outer" id="outer">
+        <input type="hidden" id="CaptchaID" value="0" />
+        <div class="filter-box"></div>
+        <span class="txtRoll">按住滑块，拖拽到最右边</span>
+        <div class="inner">&gt;&gt;</div>
+    </div>
+</div>
+<script>
+    $(function () {
+//拖动验证
+        $(".inner").mousedown(function (e) {
+            var dx, os = $(".inner").offset(), _differ = $(".outer").width() - $(".inner").width();
+            $(document).mousemove(function (e) {
+                dx = e.pageX - os.left;
+                if (dx < 0) {
+                    dx = 0;
+                } else if (dx > _differ) {
+                    dx = _differ;
+                }
+                $(".filter-box").css('width', dx);
+                $(".inner").css("left", dx);
+            });
+            $(document).mouseup(function (e) {
+                $(document).off('mousemove');
+                $(document).off('mouseup');
+                dx = e.pageX - os.left;
+                if (dx < _differ) {
+
+                    SlideCheckFail();
+                } else if (dx >= _differ) {
+                    SlideCheckSuccess(_differ);
+                }
+
+            })
+        });
+
+        $("input[type=button]").click(function () {
+            SlideCheckFail();
+        });
+
+    });
+    //初始验证
+    function SlideCheckFail() {
+        $(".outer").removeClass("act");
+        $(".inner").css("left", 0);
+        $(".inner").html("&gt;&gt;");
+        $(".filter-box").css('width', 0);
+        $(".outer>span").html("按住滑块，拖拽到最右边");
+
+        $("#CaptchaID").val("0");
+        $(".outer span").addClass("txtRoll");
+    }
+    //验证成功
+    function SlideCheckSuccess(dx) {
+        $(".outer").addClass("act");
+        $(".outer>span").html("验证通过！");
+        $(".inner").html('&radic;');
+        $(".inner").css("left", dx);
+        $(".filter-box").css('width', dx);
+
+        $("#CaptchaID").val("1");
+        $(".outer span").removeClass("txtRoll");
+    }
+</script>
+</body>
+</html>
